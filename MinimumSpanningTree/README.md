@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     class EXAM9 {
         +main(String[] args)
