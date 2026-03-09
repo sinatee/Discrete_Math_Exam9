@@ -1,6 +1,6 @@
 package service;
 
-import model.Graph;
+import model.*;
 
 public class GraphAnalyzer {
 
