@@ -20,8 +20,8 @@ public class EXAM9 {
         String prefix = tree.getPrefix(root);
         System.out.println("Prefix Expression: " + prefix);
 
-        String postfixFromTree = tree.getPostfix(root);
-        System.out.println("Postfix from Tree: " + postfixFromTree);
+        // String postfixFromTree = tree.getPostfix(root);
+        // System.out.println("Postfix from Tree: " + postfixFromTree);
 
         double result = tree.evaluate(root);
         System.out.println("Evaluation Result: " + result);
