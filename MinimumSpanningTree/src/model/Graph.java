@@ -3,49 +3,66 @@ package model;
 import java.util.*;
 
 public class Graph {
-
-    private Set<Vertex> vertices;
-    private List<Edge> edges;
+    private final Map<String, Vertex> vertexMap;
+    private final List<Edge> edges;
+    private final Map<Vertex, List<Edge>> adj;
 
     public Graph() {
-        vertices = new HashSet<>();
-        edges = new ArrayList<>();
+        this.vertexMap = new HashMap<>();
+        this.edges = new ArrayList<>();
+        this.adj = new HashMap<>();
     }
 
     public boolean addVertex(String name) {
-        Vertex v = new Vertex(name);
-        return vertices.add(v);
-    }
-
-    public void addEdge(String source, String dest, int cost) {
-
-    Vertex s = findVertex(source);
-    Vertex d = findVertex(dest);
-
-    if (s == null || d == null) {
-        return;
-    }
-
-    edges.add(new Edge(s, d, cost));
-}
-    public Set<Vertex> getVertices() {
-        return vertices;
-    }
-
-    public List<Edge> getEdges() {
-        return edges;
-    }
-
-    private Vertex findVertex(String name) {
-
-        for (Vertex v : vertices) {
-
-            if (v.getName().equals(name)) {
-                return v;
-            }
-
+        if (name == null || name.trim().isEmpty() || vertexMap.containsKey(name)) {
+            return false;
         }
+        Vertex v = new Vertex(name);
+        vertexMap.put(name, v);
+        adj.put(v, new ArrayList<>()); 
+        return true;
+    }
 
-        return null;
+    public void addEdge(String sourceName, String destName, int weight) {
+        this.addVertex(sourceName);
+        this.addVertex(destName);
+
+        Vertex s = vertexMap.get(sourceName);
+        Vertex d = vertexMap.get(destName);
+        Edge edge = new Edge(s, d, weight);
+
+        this.edges.add(edge);
+        
+        // สำหรับ Undirected Graph
+        adj.get(s).add(edge);
+        adj.get(d).add(edge);
+    }
+
+    /**
+     * ดึง Vertex จากชื่อ
+     */
+    public Vertex findVertex(String name) {
+        return vertexMap.get(name);
+    }
+
+    public List<Edge> getEdgesOf(Vertex v) {
+        return Collections.unmodifiableList(adj.getOrDefault(v, new ArrayList<>()));
+    }
+
+    public Collection<Vertex> getVertices() { 
+        return Collections.unmodifiableCollection(vertexMap.values()); 
+    }
+    
+    public List<Edge> getEdges() { 
+        return Collections.unmodifiableList(edges); 
+    }
+
+    public int getVertexCount() { return vertexMap.size(); }
+    public int getEdgeCount() { return edges.size(); }
+
+    public void clear() {
+        this.vertexMap.clear();
+        this.edges.clear();
+        this.adj.clear();
     }
 }

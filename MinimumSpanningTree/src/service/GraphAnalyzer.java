@@ -4,20 +4,23 @@ import model.*;
 
 public class GraphAnalyzer {
 
-    // เมธอดนี้ใช้ตรวจสอบว่า Graph ที่รับเข้ามาเป็น Complete Graph หรือไม่
+    /**
+     * ตรวจสอบว่ากราฟเป็น Complete Graph หรือไม่
+     * สูตร: จำนวนเส้นเชื่อม (e) ต้องเท่ากับ n(n-1)/2
+     */
     public static boolean isCompleteGraph(Graph g) {
+        if (g == null) return false;
 
-        // n คือจำนวนจุด (Vertex) ทั้งหมดในกราฟ
-        int n = g.getVertices().size();
+        // ดึงจำนวนจุดและเส้นเชื่อมผ่าน method ที่เราสร้างไว้ใน Graph
+        int n = g.getVertexCount();
+        int e = g.getEdgeCount();
 
-        // e คือจำนวนเส้น (Edge) ทั้งหมดในกราฟ
-        int e = g.getEdges().size();
+        // กราฟที่มี 0 หรือ 1 จุด ในทางทฤษฎีถือว่าเป็น Complete Graph
+        if (n <= 1) return true;
 
-        // สูตรของ Complete Graph คือ จำนวนเส้นต้องเท่ากับ n(n-1)/2
-        int expectedEdges = (n * (n - 1)) / 2;
+        // ใช้ long ในการคำนวณเพื่อป้องกันเลขเกิน (Overflow)
+        long expectedEdges = (long) n * (n - 1) / 2;
 
-        // ถ้าจำนวนเส้นจริง เท่ากับ จำนวนเส้นตามสูตร
-        // แสดงว่าเป็น Complete Graph
         return e == expectedEdges;
     }
 }

@@ -2,14 +2,18 @@ package model;
 
 public class Edge implements Comparable<Edge> {
 
-    private Vertex source;
-    private Vertex dest;
-    private int cost;
+    private final Vertex source;
+    private final Vertex dest;
+    private final int weight; // เปลี่ยนจาก cost เป็น weight ให้ตรงกับชื่อเมธอด
 
-    public Edge(Vertex source, Vertex dest, int cost) {
+    public Edge(Vertex source, Vertex dest, int weight) {
+        // Validation: ป้องกัน Error ที่ต้นเหตุ
+        if (source == null || dest == null) {
+            throw new IllegalArgumentException("Source and Destination vertices cannot be null");
+        }
         this.source = source;
         this.dest = dest;
-        this.cost = cost;
+        this.weight = weight;
     }
 
     public Vertex getSource() {
@@ -21,16 +25,17 @@ public class Edge implements Comparable<Edge> {
     }
 
     public int getWeight() {
-        return cost;
+        return weight;
     }
 
     @Override
     public int compareTo(Edge other) {
-        return Integer.compare(this.cost, other.cost);
+        return Integer.compare(this.weight, other.weight);
     }
 
     @Override
     public String toString() {
-        return source + " - " + dest + " : " + cost;
+        // toString เดิมของคุณดีอยู่แล้วครับ อ่านง่าย
+        return source + " - " + dest + " : " + weight;
     }
 }

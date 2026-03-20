@@ -7,14 +7,14 @@ public class MST {
 
     // --- Kruskal's Algorithm ---
     public List<Edge> runKruskal(Graph g) {
+        // ใช้ PriorityQueue หรือ Sort ก็ได้ (Clean Code: Sort List อ่านง่ายกว่า)
         List<Edge> allEdges = new ArrayList<>(g.getEdges());
-        // Sort edges ตาม cost (ใช้น้อยไปมาก) โดยอาศัย Comparable ใน Edge
         Collections.sort(allEdges);
 
         List<Edge> result = new ArrayList<>();
         Map<Vertex, Vertex> parent = new HashMap<>();
 
-        // Initialize Union-Find
+        // Initialize Union-Find: ทุกโหนดเป็นหัวหน้าตัวเอง
         for (Vertex v : g.getVertices()) {
             parent.put(v, v);
         }
@@ -23,6 +23,7 @@ public class MST {
             Vertex root1 = find(parent, edge.getSource());
             Vertex root2 = find(parent, edge.getDest());
 
+            // ถ้าไม่ทำให้เกิด Cycle (อยู่คนละกลุ่ม) ให้เลือกเส้นนี้
             if (!root1.equals(root2)) {
                 result.add(edge);
                 parent.put(root1, root2); // Union
@@ -33,46 +34,51 @@ public class MST {
 
     private Vertex find(Map<Vertex, Vertex> parent, Vertex v) {
         if (parent.get(v).equals(v)) return v;
-        return find(parent, parent.get(v));
+        // Path Compression: ชี้ไปที่ root โดยตรงเพื่อความเร็ว
+        parent.put(v, find(parent, parent.get(v))); 
+        return parent.get(v);
     }
 
     // --- Prim's Algorithm ---
     public List<Edge> runPrim(Graph g, String startName) {
+        // ใช้ findVertex ที่เราทำไว้ใน Graph.java ได้เลย สั้นกว่า Stream มาก
+        Vertex startNode = g.findVertex(startName);
+        if (startNode == null) return Collections.emptyList();
+
         List<Edge> result = new ArrayList<>();
         Set<Vertex> visited = new HashSet<>();
         PriorityQueue<Edge> pq = new PriorityQueue<>();
 
-        // ค้นหาจุดเริ่มต้น
-        Vertex startNode = null;
-        for (Vertex v : g.getVertices()) {
-            if (v.getName().equals(startName)) {
-                startNode = v;
-                break;
-            }
-        }
-
-        if (startNode == null) return result;
-
         visited.add(startNode);
-        addAvailableEdges(g, startNode, visited, pq);
+        enqueueEdges(g, startNode, visited, pq);
 
-        while (!pq.isEmpty() && visited.size() < g.getVertices().size()) {
+        int targetEdges = g.getVertexCount() - 1;
+        
+        while (!pq.isEmpty() && result.size() < targetEdges) {
             Edge edge = pq.poll();
+            
+            // หาโหนดปลายทางที่ยังไม่เคยไป
             Vertex next = visited.contains(edge.getSource()) ? edge.getDest() : edge.getSource();
 
             if (!visited.contains(next)) {
                 visited.add(next);
                 result.add(edge);
-                addAvailableEdges(g, next, visited, pq);
+                enqueueEdges(g, next, visited, pq);
             }
         }
         return result;
     }
 
-    private void addAvailableEdges(Graph g, Vertex v, Set<Vertex> visited, PriorityQueue<Edge> pq) {
-        for (Edge e : g.getEdges()) {
-            if (e.getSource().equals(v) && !visited.contains(e.getDest())) pq.add(e);
-            else if (e.getDest().equals(v) && !visited.contains(e.getSource())) pq.add(e);
+    /**
+     * ใช้ Adjacency List จาก Graph ช่วยให้ไม่ต้องวนลูป Edge ทั้งหมด
+     */
+    private void enqueueEdges(Graph g, Vertex v, Set<Vertex> visited, PriorityQueue<Edge> pq) {
+        // ดึงเฉพาะเส้นที่เชื่อมกับจุด v มาพิจารณา (เร็วมาก!)
+        for (Edge e : g.getEdgesOf(v)) {
+            Vertex neighbor = e.getSource().equals(v) ? e.getDest() : e.getSource();
+            if (!visited.contains(neighbor)) {
+                pq.add(e);
+            }
         }
     }
 }

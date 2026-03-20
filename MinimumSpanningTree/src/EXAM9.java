@@ -5,51 +5,85 @@ import java.util.*;
 public class EXAM9 {
     public static void main(String[] args) {
         Graph g = new Graph();
+        GraphUI ui = new GraphUI();
         MST mstService = new MST();
+        Dijkstra dijkstraService = new Dijkstra();
+        Scanner sc = new Scanner(System.in);
 
-        // 1. เพิ่มจุด (Vertices)
-        g.addVertex("A");
-        g.addVertex("B");
-        g.addVertex("C");
-        g.addVertex("D");
-        g.addVertex("E");
+        boolean running = true;
 
-        // 2. เพิ่มเส้นเชื่อม (Edges) - ตัวอย่างกราฟ
-        g.addEdge("A", "B", 4);
-        g.addEdge("A", "C", 2);
-        g.addEdge("B", "C", 1);
-        g.addEdge("B", "D", 5);
-        g.addEdge("C", "D", 8);
-        g.addEdge("C", "E", 10);
-        g.addEdge("D", "E", 2);
+        while (running) {
+            System.out.println("\n==================================");
+            System.out.println("    GRAPH ALGORITHM MAIN MENU     ");
+            System.out.println("==================================");
+            System.out.println(" 1. Add Edges to Graph");
+            System.out.println(" 2. Show Graph Analysis Report");
+            System.out.println(" 3. Run Kruskal's Algorithm (MST)");
+            System.out.println(" 4. Run Prim's Algorithm (MST)");
+            System.out.println(" 5. Run Dijkstra's Algorithm (Shortest Path)");
+            System.out.println(" 6. Clear Graph Data");
+            System.out.println(" 0. Exit Program");
+            System.out.println("----------------------------------");
+            System.out.print("Select an option: ");
 
-        System.out.println("=== Graph Analysis ===");
-        System.out.println("Is Complete Graph: " + GraphAnalyzer.isCompleteGraph(g));
-        System.out.println("Total Vertices: " + g.getVertices().size());
-        System.out.println("Total Edges: " + g.getEdges().size());
+            String choice = sc.next();
 
-        // 3. รัน Kruskal's Algorithm
-        System.out.println("\n--- Kruskal's MST Result ---");
-        List<Edge> kruskalRes = mstService.runKruskal(g);
-        printResult(kruskalRes);
+            switch (choice) {
+                case "1":
+                    ui.inputGraph(g);
+                    break;
 
-        // 4. รัน Prim's Algorithm (เริ่มจากจุด A)
-        String startPoint = "A";
-        System.out.println("\n--- Prim's MST Result (Starting at " + startPoint + ") ---");
-        List<Edge> primRes = mstService.runPrim(g, startPoint);
-        printResult(primRes);
-    }
+                case "2":
+                    System.out.println("\n[Analysis Report]");
+                    System.out.println("Total Vertices: " + g.getVertexCount());
+                    System.out.println("Total Edges   : " + g.getEdgeCount());
+                    System.out.println("Complete Graph: " + GraphAnalyzer.isCompleteGraph(g));
+                    break;
 
-    private static void printResult(List<Edge> edges) {
-        int totalCost = 0;
-        if (edges.isEmpty()) {
-            System.out.println("No MST found (Graph might be disconnected).");
-            return;
+                case "3":
+                    if (g.getEdgeCount() == 0) {
+                        System.out.println("Error: Graph is empty.");
+                    } else {
+                        List<Edge> kruskalEdges = mstService.runKruskal(g);
+                        ui.displayMST("Kruskal's Algorithm Result", kruskalEdges);
+                    }
+                    break;
+
+                case "4":
+                case "5":
+                    if (g.getVertexCount() == 0) {
+                        System.out.println("Error: Graph is empty.");
+                    } else {
+                        String startNode = ui.askStartPoint();
+                        if (g.findVertex(startNode) == null) {
+                            System.out.println("Error: Vertex '" + startNode + "' not found.");
+                        } else {
+                            if (choice.equals("4")) {
+                                List<Edge> primEdges = mstService.runPrim(g, startNode);
+                                ui.displayMST("Prim's Algorithm Result (Start: " + startNode + ")", primEdges);
+                            } else {
+                                Map<Vertex, Integer> dijkstraPaths = dijkstraService.runDijkstra(g, startNode);
+                                ui.displayShortestPaths(startNode, dijkstraPaths);
+                            }
+                        }
+                    }
+                    break;
+
+                case "6":
+                    g = new Graph(); // สร้าง object ใหม่เพื่อล้างข้อมูล
+                    System.out.println("Graph data has been cleared.");
+                    break;
+
+                case "0":
+                    running = false;
+                    System.out.println("Exiting program... Thank you!");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
         }
-        for (Edge e : edges) {
-            System.out.println(e); // ใช้ toString() ของ Edge ที่คุณเขียนไว้
-            totalCost += e.getWeight();
-        }
-        System.out.println("Total Weight: " + totalCost);
+        sc.close();
     }
 }
